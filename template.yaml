@@ -1,9 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  snowmansoup
-
-  Sample SAM Template for snowmansoup
+  SAM template for snowmansoup, a basic Serverless API for CRUD soup functionality
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -11,23 +9,41 @@ Globals:
     Timeout: 10
 
 Resources:
-  MeltSoupFunction:
+  SnowmanSoupFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: flask_api/
       Handler: app.app
       Runtime: python3.8
       Events:
-        MeltOneSoup:
+        FetchSoups:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /sunshine
+            Path: /soups
             Method: get
-        MeltAllSoups:
+        CreateSoup:
           Type: Api
           Properties:
-            Path: /summer
-            Method: get
+            Path: /soups
+            Method: post
+
+  SnowmanSoupTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: snowman-soups
+      AttributeDefinitions:
+        - AttributeName: soupId
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: soupId
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -35,10 +51,10 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   SnowmanSoupApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/sunshine/"
-  MeltSoupFunction:
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/soups/"
+  SnowmanSoupFunction:
     Description: "Melt the snowman"
-    Value: !GetAtt MeltSoupFunction.Arn
-  HelloWorldFunctionIamRole:
+    Value: !GetAtt SnowmanSoupFunction.Arn
+  SnowmanSoupFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt MeltSoupFunctionRole.Arn
+    Value: !GetAtt SnowmanSoupFunction.Arn
