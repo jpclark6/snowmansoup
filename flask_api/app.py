@@ -6,6 +6,8 @@ import boto3
 from flask import request, jsonify
 from flask_lambda import FlaskLambda
 
+from boto3.dynamodb.conditions import Key
+
 REGION = os.environ['REGION_NAME']
 TABLE_NAME = os.environ['TABLE_NAME']
 
@@ -29,7 +31,7 @@ def fetch_soups():
     table_response = db_table().query(KeyConditionExpression=Key('userId').eq(user_id))
     return jsonify(table_response['Items'])
 
-@app.route('/soups', method=('POST',))
+@app.route('/soups', methods=('POST',))
 def create_soup():
     try:
         user_id = parse_user_id(request)

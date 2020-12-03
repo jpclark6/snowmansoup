@@ -15,6 +15,13 @@ Resources:
       CodeUri: flask_api/
       Handler: app.app
       Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref SnowmanSoupTable
+          REGION_NAME: !Ref AWS::Region
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SnowmanSoupTable
       Events:
         FetchSoups:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
